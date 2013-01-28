@@ -1,0 +1,5 @@
+#!/bin/bash -e
+
+vzName="$1"
+ctid="$(vzlist -aHh "$vzName" | awk '{ print $1 }')"
+printf '%s\n' "$ctid"

@@ -1,0 +1,1 @@
+I created this script to help out migrating containers at my workplace, it may be too specific for your needs. If you can generalise any code that is for my specific use case only, please submit a pull request!

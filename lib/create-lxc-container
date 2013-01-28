@@ -1,0 +1,5 @@
+#!/bin/bash -e
+
+containerName=$1
+
+lxc-create -n "$containerName" -t debian

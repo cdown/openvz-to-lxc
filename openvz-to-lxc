@@ -1,0 +1,47 @@
+#!/bin/bash -e
+
+usage() {
+    cat << EOF
+Usage: ${0##*/} <vzServer>:vzContainerName lxcContainerName [--rsync-only]
+EOF
+    exit 1
+}
+
+(( $# < 2 )) || usage
+
+vzServer="${1%%:*}"
+
+vzContainerName="${1#*:}"
+lxcContainerName="$2"
+
+flag="$3"
+
+# If the server and container name are the same, there was no server name
+# specified and we are operating on a local container.
+if [[ "$vzServer" == "$vzContainerName" ]]; then
+    unset vzServer
+else
+    vzScriptDir="$(ssh "$vzServer" 'mktemp -d')"
+    scp lib/* "$vzServer:$vzScriptDir"
+fi
+
+if [[ "$vzServer" ]]; then
+    ctid=$(ssh "$vzServer" "$vzScriptDir/get-ctid-for-hostname \"$vzContainerName\"")
+else
+    ctid=$(lib/get-ctid-for-hostname "$vzContainerName")
+fi
+
+if ! [[ "$ctid" ]]; then
+    # There is no hostname named like that.
+    printf 'No such OpenVZ container: %s\n' "$vzContainerName"
+    exit 2
+fi
+
+if [[ "$flag" != "--rsync-only" ]]; then
+    TERM=xterm lib/create-lxc-container "$lxcContainerName"
+fi
+
+rsync -avze ssh \
+    --exclude=etc/inittab --exclude=etc/network/interfaces --exclude=dev --exclude=sys --exclude=proc \
+    "${vzServer:+root@$vzServer:}/vz/root/$ctid/" \
+    "/var/lib/lxc/$lxcContainerName/rootfs/"
