@@ -7,7 +7,7 @@ EOF
     exit 1
 }
 
-(( $# < 2 )) || usage
+(( $# > 2 )) || usage
 
 vzServer="${1%%:*}"
 
