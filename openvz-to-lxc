@@ -42,6 +42,6 @@ if [[ "$flag" != "--rsync-only" ]]; then
 fi
 
 rsync -avze ssh \
-    --exclude=etc/inittab --exclude=etc/network/interfaces --exclude=dev --exclude=sys --exclude=proc \
+    --exclude=etc/inittab --exclude=etc/network/interfaces --exclude=dev/ --exclude=sys/ --exclude=proc/ \
     "${vzServer:+root@$vzServer:}/vz/root/$ctid/" \
     "/var/lib/lxc/$lxcContainerName/rootfs/"
